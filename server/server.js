@@ -30,6 +30,17 @@ app.post('/gifts', (req,res)=>{
 })
 
 /**
+ * GET ALL GIFTS
+ */
+app.get('/gifts', (req,res)=>{
+    Gift.find().then((gifts)=>{
+        res.send(gifts);
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+})
+
+/**
  * MAKE ORDER
  */
 app.post('/orders', authenticate, (req,res)=>{
