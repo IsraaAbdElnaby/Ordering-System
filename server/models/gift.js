@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+// const autoIncrement = require('mongoose-auto-increment');
 
-var Gift = mongoose.model('Gift',{
+var giftSchema = new mongoose.Schema({
     image:{
         type: String,
         required: true,
@@ -13,4 +14,7 @@ var Gift = mongoose.model('Gift',{
     },
 });
 
+// giftSchema.plugin(autoIncrement.plugin, 'Gift');
+
+var Gift = mongoose.model('Gift', giftSchema);
 module.exports = {Gift}

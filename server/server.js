@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
-var {gift} = require('./models/gift');
+var {Gift} = require('./models/gift');
+var {Order} = require('./models/order');
 var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
@@ -12,9 +13,46 @@ app.use(bodyParser.json());
 
 const port = process.env.PORT||3000; 
 
-//SIGNUP
+/**
+ * ADD Gift
+ */
+app.post('/gifts', (req,res)=>{
+    var gift = new Gift({
+        'image': req.body.image,
+        'description': req.body.description,
+    });
+
+    gift.save().then((doc)=>{
+        res.send(doc);
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+})
+
+/**
+ * MAKE ORDER
+ */
+app.post('/orders', authenticate, (req,res)=>{
+    var order = new Order({
+        'date': req.body.date,
+        'driver': req.body.driver,
+        'gift': req.body.gift,
+        'client': req.user._id,
+        'location': req.body.location
+    });
+
+    order.save().then((doc)=>{
+        res.send(doc);
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+})
+
+/**
+ * SIGNUP
+ */
 app.post('/users', (req,res) => {
-    var body = _.pick(req.body, ['email', 'password']);
+    var body = _.pick(req.body, ['email', 'password', 'role']);
     var user = new User(body);
 
     user.save().then(() => {
@@ -31,7 +69,9 @@ app.get('/users/me', authenticate, (req, res)=>{
     res.send(req.user);
 });
 
-//LOGIN
+/**
+ *LOGIN
+ */
 app.post('/users/login',(req, res)=>{
     var body = _.pick(req.body, ['email', 'password']);
     User.findByCredentials(body.email, body.password).then((user)=>{

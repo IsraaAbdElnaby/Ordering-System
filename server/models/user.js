@@ -3,6 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
+const autoIncrement = require('mongoose-auto-increment');
 
 var UserSchema = new mongoose.Schema({
     email: {
@@ -23,6 +24,11 @@ var UserSchema = new mongoose.Schema({
         minlength: 6,
     },
 
+    role: {
+        type: String,
+        required: true,
+    },
+
     tokens: [{
         access: {
             type: String,
@@ -35,11 +41,13 @@ var UserSchema = new mongoose.Schema({
     }]
 });
 
+// UserSchema.plugin(autoIncrement.plugin, 'User');
+
 UserSchema.methods.toJSON = function () {
     var user = this;
     var userObject = user.toObject();
 
-    return _.pick(userObject, ['_id', 'email']);
+    return _.pick(userObject, ['_id', 'email', 'role']);
 }
 
 UserSchema.methods.generateAuthToken = function () {
