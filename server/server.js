@@ -142,6 +142,29 @@ app.delete('/orders/:id', authenticate, (req, res)=>{
 });
 
 /**
+ * UPDATE ORDER
+ */
+app.put('/orders/:id', authenticate, (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Order.findByIdAndUpdate(id,req.body).then(()=>{
+        Order.findOne(id).then((order)=>{
+            if(!order){
+                return res.status(404).send();
+            }
+            res.send(order);
+        }).catch((e)=>{
+            res.status(400).send();
+        });
+
+    })
+});
+
+/**
  * SIGNUP
  */
 app.post('/users', (req,res) => {
