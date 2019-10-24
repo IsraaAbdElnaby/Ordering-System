@@ -42,6 +42,26 @@ app.get('/gifts', (req,res)=>{
 })
 
 /**
+ * DELETE GIFT
+ */
+app.delete('/gifts/:id', (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Gift.findByIdAndRemove(id).then((gift)=>{
+        if(!gift){
+            return res.status(404).send();
+        }
+        res.send(gift);
+    }).catch((e)=>{
+        res.status(400).send();
+    });
+});
+
+/**
  * MAKE ORDER
  */
 app.post('/orders', authenticate, (req,res)=>{
@@ -102,6 +122,26 @@ app.get('/orders', authenticate, (req,res)=>{
 })
 
 /**
+ * DELETE ORDER
+ */
+app.delete('/orders/:id', authenticate, (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Order.findByIdAndRemove(id).then((order)=>{
+        if(!order){
+            return res.status(404).send();
+        }
+        res.send(order);
+    }).catch((e)=>{
+        res.status(400).send();
+    });
+});
+
+/**
  * SIGNUP
  */
 app.post('/users', (req,res) => {
@@ -131,6 +171,26 @@ app.post('/users/login',(req, res)=>{
         return user.generateAuthToken().then((token)=>{
             res.header('x-auth', token).send(user);
         })
+    }).catch((e)=>{
+        res.status(400).send();
+    });
+});
+
+/**
+ * DELETE USER
+ */
+app.delete('/users/:id', authenticate, (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    User.findByIdAndRemove(id).then((user)=>{
+        if(!user){
+            return res.status(404).send();
+        }
+        res.send(user);
     }).catch((e)=>{
         res.status(400).send();
     });
