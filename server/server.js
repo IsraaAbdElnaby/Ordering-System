@@ -46,16 +46,18 @@ app.get('/gifts', (req,res)=>{
  */
 app.post('/orders', authenticate, (req,res)=>{
     
+    var driver_id = req.body.driver;
+    var gift_id = req.body.gift;
+
     var order = new Order({
         'date': req.body.date,
-        'driver': req.body.driver,
-        'gift': req.body.gift,
+        'driver': driver_id,
+        'gift': gift_id,
         'client': req.user._id,
         'location': req.body.location
     });
 
-    var driver_id = req.body.driver;
-    var gift_id = req.body.gift;
+
 
     //CHECKING IDS ARE VALID
     if(!ObjectID.isValid(driver_id) || !ObjectID.isValid(gift_id)){
@@ -81,6 +83,19 @@ app.post('/orders', authenticate, (req,res)=>{
 
     order.save().then((doc)=>{
         res.send(doc);
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+})
+
+/**
+ * GET ALL ORDERS THE USER MADE
+ */
+app.get('/orders', authenticate, (req,res)=>{
+    Order.find({
+        client: req.user._id
+    }).then((orders)=>{
+        res.send({orders});
     }).catch((e)=>{
         res.status(400).send(e);
     })
