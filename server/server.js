@@ -2,6 +2,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser'); 
 
+var {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Gift} = require('./models/gift');
@@ -34,7 +35,7 @@ app.post('/gifts', (req,res)=>{
  */
 app.get('/gifts', (req,res)=>{
     Gift.find().then((gifts)=>{
-        res.send(gifts);
+        res.send({gifts});
     }).catch((e)=>{
         res.status(400).send(e);
     })
@@ -44,6 +45,7 @@ app.get('/gifts', (req,res)=>{
  * MAKE ORDER
  */
 app.post('/orders', authenticate, (req,res)=>{
+    
     var order = new Order({
         'date': req.body.date,
         'driver': req.body.driver,
@@ -51,6 +53,31 @@ app.post('/orders', authenticate, (req,res)=>{
         'client': req.user._id,
         'location': req.body.location
     });
+
+    var driver_id = req.body.driver;
+    var gift_id = req.body.gift;
+
+    //CHECKING IDS ARE VALID
+    if(!ObjectID.isValid(driver_id) || !ObjectID.isValid(gift_id)){
+        return res.status(404).send();
+    }
+
+    User.findById(driver_id).then((driver)=>{
+        if(!driver) {
+            return res.status(404).send();
+        }
+
+    }).catch((e)=>{
+        res.status(400).send();
+    })
+
+    Gift.findById(gift_id).then((gift)=>{
+        if(!gift) {
+            return res.status(404).send();
+        }
+    }).catch((e)=>{
+        res.status(400).send();
+    })
 
     order.save().then((doc)=>{
         res.send(doc);
