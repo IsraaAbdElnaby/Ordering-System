@@ -42,6 +42,35 @@ app.get('/gifts', (req,res)=>{
 })
 
 /**
+ * UPDATE GIFT
+ */
+app.put('/gifts/:id', authenticate, (req, res)=>{
+    //ADMIN ONLY CAN UPDATE GIFT
+    if(req.user.role !== "Admin"){
+        return res.status(401).send('Unauthorized Request!');
+    }
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Gift.findByIdAndUpdate(id,{$set:req.body}, {new: true}).then(()=>{
+        Gift.findOne({_id:id}).then((gift)=>{
+            if(!gift){
+                return res.status(404).send();
+            }
+            res.send(gift);
+        }).catch((e)=>{
+            res.status(400).send(e);
+        });
+
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+});
+
+/**
  * DELETE GIFT
  */
 app.delete('/gifts/:id', (req, res)=>{
@@ -83,19 +112,20 @@ app.post('/orders', authenticate, (req,res)=>{
     if(!ObjectID.isValid(driver_id) || !ObjectID.isValid(gift_id)){
         return res.status(404).send();
     }
-
+    
+    //CHEKING DRIVER ID EXISTS
     User.findById(driver_id).then((driver)=>{
         if(!driver) {
-            return res.status(404).send();
+            return res.status(404).send('Driver doesn\'t exist!');
         }
-
     }).catch((e)=>{
         res.status(400).send();
     })
 
+    //CHEKING GIFT ID EXISTS
     Gift.findById(gift_id).then((gift)=>{
         if(!gift) {
-            return res.status(404).send();
+            return res.status(404).send('Gift doesn\'t exist!');
         }
     }).catch((e)=>{
         res.status(400).send();
@@ -151,16 +181,18 @@ app.put('/orders/:id', authenticate, (req, res)=>{
         return res.status(404).send();
     }
 
-    Order.findByIdAndUpdate(id,req.body).then(()=>{
-        Order.findOne(id).then((order)=>{
+    Order.findByIdAndUpdate(id,{$set:req.body}, {new: true}).then(()=>{
+        Order.findOne({_id:id}).then((order)=>{
             if(!order){
                 return res.status(404).send();
             }
             res.send(order);
         }).catch((e)=>{
-            res.status(400).send();
+            res.status(400).send(e);
         });
 
+    }).catch((e)=>{
+        res.status(400).send(e);
     })
 });
 
@@ -198,6 +230,36 @@ app.post('/users/login',(req, res)=>{
         res.status(400).send();
     });
 });
+
+/**
+ * UPDATE GIFT
+ */
+app.put('/users/:id', authenticate, (req, res)=>{
+    //ADMIN ONLY CAN UPDATE USER
+    if(req.user.role !== "Admin"){
+        return res.status(401).send('Unauthorized Request!');
+    }
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    User.findByIdAndUpdate(id,{$set:req.body}, {new: true}).then(()=>{
+        User.findOne({_id:id}).then((user)=>{
+            if(!user){
+                return res.status(404).send();
+            }
+            res.send(user);
+        }).catch((e)=>{
+            res.status(400).send(e);
+        });
+
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+});
+
 
 /**
  * DELETE USER
