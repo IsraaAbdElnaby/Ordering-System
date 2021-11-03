@@ -23,6 +23,6 @@
     "mongodb": "^3.3.2",
     "mongoose": "^5.7.5",
     "mongoose-auto-increment": "^5.0.1",
-    "validator": "^11.1.0"
+    "validator": "^13.7.0"
   }
 }
